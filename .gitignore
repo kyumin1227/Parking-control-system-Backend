@@ -1,0 +1,22 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Gradle
+.gradle/
+build/
+out/
+
+# 기타 IDE 파일들
+.vscode/
+.classpath
+.project
+.settings/
+
+# 로그 파일
+*.log
+
+# 운영 체제 파일
+.DS_Store
+Thumbs.db
