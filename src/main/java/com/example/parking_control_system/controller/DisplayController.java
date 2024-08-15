@@ -26,12 +26,9 @@ public class DisplayController {
 
     /**
      * 테스트 (1초 간격으로 40회 현재 시간과 카운트 출력)
-     * @return
      */
     @GetMapping(value = "/api/display/test", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter test() {
-
-        List<ParkingSpace> all = parkingSpaceRepository.findAll();
 
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
 
@@ -39,7 +36,6 @@ public class DisplayController {
             try {
                 for (int i = 0; i < 40; i++) {
                     emitter.send("SSE event - " + LocalTime.now() + " count = " + Integer.toString(i + 1));
-                    emitter.send(all);
                     TimeUnit.SECONDS.sleep(1); // 1초 간격으로 데이터 전송
                 }
                 emitter.complete(); // 작업 완료 후 SSE 스트림 종료
