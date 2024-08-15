@@ -1,10 +1,17 @@
 package com.example.parking_control_system.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.example.parking_control_system.type.Role;
+import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 public class Member {
     @Id
-    public String member_id;
+    private String memberId;
+    @Enumerated(EnumType.STRING)
+    private Role role;
+    private String password;
+    private String email;
+
 }
