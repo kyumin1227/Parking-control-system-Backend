@@ -6,5 +6,5 @@ package com.example.parking_control_system.type;
 public enum ParkingStatus {
     OCCUPIED,
     RESERVED,
-    BLACK
+    AVAILABLE
 }

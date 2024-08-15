@@ -1,17 +1,24 @@
 package com.example.parking_control_system.entity;
 
-import com.example.parking_control_system.type.Role;
 import jakarta.persistence.*;
 
-import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Member {
     @Id
-    private String memberId;
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long memberId;
+    private String memberName;
     private String password;
     private String email;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "memberRole",
+            joinColumns = @JoinColumn(name = "memberId"),
+            inverseJoinColumns = @JoinColumn(name = "roleId")
+    )
+    private Set<Role> roles;
 
 }
