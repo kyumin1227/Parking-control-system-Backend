@@ -1,5 +1,6 @@
 package com.example.parking_control_system.entity;
 
+import com.example.parking_control_system.listener.ParkingSpaceListener;
 import com.example.parking_control_system.type.ParkingStatus;
 import com.example.parking_control_system.type.ParkingType;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import lombok.Setter;
 
 @Entity
 @Getter @Setter
+@EntityListeners(value = ParkingSpaceListener.class)
 public class ParkingSpace {
     @Id
     private Integer spaceId;
@@ -15,6 +17,9 @@ public class ParkingSpace {
     private ParkingStatus status;
     @Enumerated(EnumType.STRING)
     private ParkingType type;
-    private String areaId;
+    private Character areaId;
     private String spaceName;
+    @Enumerated(EnumType.STRING)
+    private ParkingStatus previousStatus;   //  이전 상태 추적을 위해 추가
+
 }
