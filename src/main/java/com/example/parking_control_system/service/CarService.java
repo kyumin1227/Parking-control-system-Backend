@@ -169,4 +169,17 @@ public class CarService {
         return true;
     }
 
+
+    /**
+     * 차량의 아이디를 통해 해당 차량의 출차되지 않은 기록이 있는지 확인
+     * @param carId
+     * @return
+     */
+    public Boolean existCarIdAndExitTimeIsNull(String carId) {
+
+        Boolean b = parkingRecordRepository.existsByCarIdAndExitTimeIsNull(carId);
+
+        return b;
+    }
+
 }

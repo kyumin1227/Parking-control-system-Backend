@@ -42,6 +42,12 @@ public class CarController {
         LocalDateTime entryTime = carEntryRequestDto.getEntryTime();
         String memberId = null;
 
+        Boolean isAlreadyParked = carService.existCarIdAndExitTimeIsNull(carId);
+
+        if (isAlreadyParked) {
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(3, "출차되지 않은 기록이 있습니다.", null));
+        }
+
         Optional<String> optionalMemberId = carService.getMemberIdByCarId(carId);
 
         Optional<List<Reservation>> optionalReservations = Optional.empty();
