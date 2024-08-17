@@ -5,11 +5,14 @@ import com.example.parking_control_system.repository.CarRepository;
 import com.example.parking_control_system.repository.ParkingRecordRepository;
 import com.example.parking_control_system.repository.ParkingSpaceRepository;
 import com.example.parking_control_system.repository.ReservationRepository;
+import com.example.parking_control_system.type.CarType;
 import com.example.parking_control_system.type.ParkingStatus;
 import com.example.parking_control_system.type.ReservationStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +43,10 @@ public class CarService {
         Car car = optionalCar.get();
 
         String memberId = car.getMemberId();
+
+        if (memberId == null) {
+            return Optional.empty();
+        }
 
         return Optional.of(memberId);
 
@@ -181,5 +188,101 @@ public class CarService {
 
         return b;
     }
+
+
+    /**
+     * 출차 시 carId를 통해 출차 시간이 없는 주차 기록을 가져오는 서비스
+     * @param carId
+     * @return
+     */
+    public Optional<ParkingRecord> getParkingRecordAndNotExitByCarId(String carId) {
+        Optional<ParkingRecord> optionalParkingRecord = parkingRecordRepository.findByCarIdAndExitTimeIsNull(carId);
+
+        return optionalParkingRecord;
+    }
+
+
+    /**
+     * 차량의 아이디를 통해 차량 타입을 가져오는 서비스
+     * @param carId
+     * @return
+     */
+    public CarType getCarTypeByCarId(String carId) {
+        Car car = carRepository.findById(carId)
+                .orElseThrow(() -> new RuntimeException("차량을 찾을수 없습니다."));
+
+        return car.getCarType();
+    }
+
+
+    /**
+     * 요금 계산 서비스
+     * 추후 수정 필요
+     * @param carType
+     * @param duration
+     * @return
+     */
+    public long calFeeByCarTypeAndDuration(CarType carType, Duration duration) {
+
+        long seconds = duration.getSeconds();
+        long fee = 0;
+
+        long oneDay = 0;
+        long oneHour = 0;
+        long tenMinute = 0;
+
+        if (seconds >= 86400) {
+            oneDay = seconds / 86400;
+        }
+
+        seconds -= 86400 * oneDay;
+
+        if (seconds >= 3600) {
+            oneHour = seconds / 3600;
+        }
+
+        seconds -= 3600 * oneHour;
+
+        if (seconds > 0) {
+            tenMinute = seconds / 600;
+            if (seconds % 600 > 0) {
+                tenMinute += 1;
+            }
+        }
+
+        fee = 10000 * oneDay + 1000 * oneHour + 300 * tenMinute;
+
+        if (carType.equals(CarType.대형)) {
+            fee *= 2;
+        } else if (carType.equals(CarType.경차)) {
+            fee /= 2;
+        }
+
+        return fee;
+    }
+
+
+    /**
+     * spaceId와 상태를 받아서 특정 주차 자리의 상태를 변경하는 서비스
+     * @param spaceId
+     * @param parkingStatus
+     */
+    public void setParkingSpaceStatusBySpaceId(Integer spaceId, ParkingStatus parkingStatus) {
+        ParkingSpace parkingSpace = parkingSpaceRepository.findById(spaceId)
+                .orElseThrow(() -> new RuntimeException("주차 자리를 찾을수 없습니다."));
+
+        parkingSpace.setStatus(parkingStatus);
+
+        parkingSpaceRepository.save(parkingSpace);
+    }
+
+
+    public void setExitTime(ParkingRecord parkingRecord, LocalDateTime exitTime) {
+
+        parkingRecord.setExitTime(exitTime);
+
+        parkingRecordRepository.save(parkingRecord);
+    }
+
 
 }

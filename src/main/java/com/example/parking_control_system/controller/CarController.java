@@ -1,12 +1,14 @@
 package com.example.parking_control_system.controller;
 
 import com.example.parking_control_system.dto.CarEntryRequestDto;
+import com.example.parking_control_system.dto.CarExitRequestDto;
 import com.example.parking_control_system.entity.Car;
 import com.example.parking_control_system.entity.ParkingRecord;
 import com.example.parking_control_system.entity.Reservation;
 import com.example.parking_control_system.repository.CarRepository;
 import com.example.parking_control_system.response.ApiResponse;
 import com.example.parking_control_system.service.CarService;
+import com.example.parking_control_system.type.CarType;
 import com.example.parking_control_system.type.ParkingStatus;
 import com.example.parking_control_system.type.ReservationStatus;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -35,8 +38,6 @@ public class CarController {
      */
     @PostMapping("/api/entry")
     public ResponseEntity<ApiResponse> entity(@RequestBody CarEntryRequestDto carEntryRequestDto) {
-
-        ParkingRecord newParkingRecord = new ParkingRecord();
 
         String carId = carEntryRequestDto.getCarId();
         LocalDateTime entryTime = carEntryRequestDto.getEntryTime();
@@ -104,5 +105,36 @@ public class CarController {
         } else {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(2, "주차 기록 저장 실패", null));
         }
+    }
+
+
+    @PostMapping("/api/exit")
+    public ResponseEntity<ApiResponse> exit(@RequestBody CarExitRequestDto carExitRequestDto) {
+
+        String carId = carExitRequestDto.getCarId();
+        LocalDateTime exitTime = carExitRequestDto.getExitTime();
+
+        Optional<ParkingRecord> optionalParkingRecord = carService.getParkingRecordAndNotExitByCarId(carId);
+
+//        입차기록을 찾을수 없는 경우
+        if (optionalParkingRecord.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(1, "입차 기록을 찾을수 없습니다.", null));
+        }
+
+        ParkingRecord parkingRecord = optionalParkingRecord.get();
+
+        LocalDateTime entryTime = parkingRecord.getEntryTime();
+        Duration duration = Duration.between(entryTime, exitTime);
+        CarType carTypeByCarId = carService.getCarTypeByCarId(carId);
+
+        long fee = carService.calFeeByCarTypeAndDuration(carTypeByCarId, duration);
+
+        Integer spaceId = parkingRecord.getSpaceId();
+
+        carService.setParkingSpaceStatusBySpaceId(spaceId, ParkingStatus.AVAILABLE);
+
+        carService.setExitTime(parkingRecord, exitTime);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(0, "요금이 정산되었습니다", fee));
     }
 }
