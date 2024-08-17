@@ -5,9 +5,6 @@ import com.example.parking_control_system.entity.ParkingSpace;
 import com.example.parking_control_system.repository.ParkingAreaRepository;
 import com.example.parking_control_system.type.ParkingStatus;
 import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +18,6 @@ public class ParkingSpaceListener {
     public void setParkingAreaRepository(ParkingAreaRepository parkingAreaRepository) {
         ParkingSpaceListener.parkingAreaRepository = parkingAreaRepository;
     }
-
-//    @PreUpdate
-//    public void preUpdate(ParkingSpace parkingSpace) {
-//        parkingSpace.setPreviousStatus(parkingSpace.getStatus());
-//        System.out.println("parkingSpace.getStatus() = " + parkingSpace.getStatus());
-//    }
 
     @PostUpdate
     @Transactional
