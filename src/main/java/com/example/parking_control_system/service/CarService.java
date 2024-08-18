@@ -285,4 +285,26 @@ public class CarService {
     }
 
 
+    /**
+     * car 목록에 해당 car가 없으면 추가
+     * @param carId
+     * @param carType
+     */
+    public void createCarIsNotFound(String carId, CarType carType) {
+
+        Optional<Car> optionalCar = carRepository.findById(carId);
+
+        if (optionalCar.isPresent()) {
+            return;
+        }
+
+        Car car = new Car();
+
+        car.setCarId(carId);
+        car.setCarType(carType);
+
+        carRepository.save(car);
+    }
+
+
 }

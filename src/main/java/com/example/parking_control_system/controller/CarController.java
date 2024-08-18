@@ -42,7 +42,12 @@ public class CarController {
         String carId = carEntryRequestDto.getCarId();
         LocalDateTime entryTime = carEntryRequestDto.getEntryTime();
         String memberId = null;
+        CarType carType = carEntryRequestDto.getCarType();
 
+//        차량의 등록 여부 확인 후 존재하지 않으면 등록
+        carService.createCarIsNotFound(carId, carType);
+
+//        출차되지 않은 주차 기록이 있는지 확인
         Boolean isAlreadyParked = carService.existCarIdAndExitTimeIsNull(carId);
 
         if (isAlreadyParked) {
