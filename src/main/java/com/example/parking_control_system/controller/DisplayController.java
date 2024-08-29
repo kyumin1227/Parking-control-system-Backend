@@ -7,6 +7,7 @@ import com.example.parking_control_system.service.DisplayService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class DisplayController {
 
 
@@ -27,7 +29,7 @@ public class DisplayController {
     /**
      * 테스트 (1초 간격으로 40회 현재 시간과 카운트 출력)
      */
-    @GetMapping(value = "/api/display/test", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/display/test", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter test() {
 
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
@@ -53,7 +55,7 @@ public class DisplayController {
      * 처음 연결 시 전체 정보를 넘기고 이후 상태 변경 시 변경된 구역 단위로 정보를 전송
      * @return
      */
-    @GetMapping(value = "/api/display/status", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/display/status", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter sendStatusInfo() {
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
 

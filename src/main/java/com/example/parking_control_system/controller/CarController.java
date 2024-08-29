@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
@@ -28,6 +29,7 @@ import java.util.Optional;
  */
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class CarController {
 
     private final CarService carService;
@@ -36,7 +38,7 @@ public class CarController {
      * 입차
      * @param carEntryRequestDto (차량 번호, 입차 시간)
      */
-    @PostMapping("/api/entry")
+    @PostMapping("/entry")
     public ResponseEntity<ApiResponse> entity(@RequestBody CarEntryRequestDto carEntryRequestDto) {
 
         String carId = carEntryRequestDto.getCarId();
@@ -113,7 +115,7 @@ public class CarController {
     }
 
 
-    @PostMapping("/api/exit")
+    @PostMapping("/exit")
     public ResponseEntity<ApiResponse> exit(@RequestBody CarExitRequestDto carExitRequestDto) {
 
         String carId = carExitRequestDto.getCarId();
