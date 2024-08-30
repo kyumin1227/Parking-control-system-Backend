@@ -4,11 +4,15 @@ import com.example.parking_control_system.listener.ParkingSpaceListener;
 import com.example.parking_control_system.type.ParkingStatus;
 import com.example.parking_control_system.type.ParkingType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @EntityListeners(value = ParkingSpaceListener.class)
 public class ParkingSpace {
     @Id
