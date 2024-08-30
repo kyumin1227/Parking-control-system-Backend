@@ -1,0 +1,36 @@
+version: '3.7'
+services:
+  db:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=pcs_dev'
+      - 'MYSQL_PASSWORD=1227'
+      - 'MYSQL_ROOT_PASSWORD=verysecret'
+      - 'MYSQL_USER=kyumin'
+    ports:
+      - '3306:3306'
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      retries: 5
+
+  app:
+    image: "ghcr.io/parking-control-system/kyumin1227/parking-control-system-backend:1.0.0"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/pcs_dev
+      SPRING_DATASOURCE_USERNAME: kyumin
+      SPRING_DATASOURCE_PASSWORD: 1227
+    links:
+      - db
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+networks:
+  app-network:
