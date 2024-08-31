@@ -2,22 +2,24 @@ package com.example.parking_control_system.controller;
 
 import com.example.parking_control_system.dto.CarEntryRequestDto;
 import com.example.parking_control_system.dto.CarExitRequestDto;
+import com.example.parking_control_system.dto.CarGetCarsDto;
 import com.example.parking_control_system.entity.Car;
+import com.example.parking_control_system.entity.Member;
 import com.example.parking_control_system.entity.ParkingRecord;
 import com.example.parking_control_system.entity.Reservation;
 import com.example.parking_control_system.repository.CarRepository;
 import com.example.parking_control_system.response.ApiResponse;
 import com.example.parking_control_system.service.CarService;
+import com.example.parking_control_system.service.MemberService;
 import com.example.parking_control_system.type.CarType;
 import com.example.parking_control_system.type.ParkingStatus;
 import com.example.parking_control_system.type.ReservationStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -33,6 +35,7 @@ import java.util.Optional;
 public class CarController {
 
     private final CarService carService;
+    private final MemberService memberService;
 
     /**
      * 입차
@@ -43,7 +46,7 @@ public class CarController {
 
         String carId = carEntryRequestDto.getCarId();
         LocalDateTime entryTime = carEntryRequestDto.getEntryTime();
-        String memberId = null;
+        Long memberId = null;
         CarType carType = carEntryRequestDto.getCarType();
 
 //        차량의 등록 여부 확인 후 존재하지 않으면 등록
@@ -56,7 +59,7 @@ public class CarController {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(3, "출차되지 않은 기록이 있습니다.", null));
         }
 
-        Optional<String> optionalMemberId = carService.getMemberIdByCarId(carId);
+        Optional<Long> optionalMemberId = carService.getMemberIdByCarId(carId);
 
         Optional<List<Reservation>> optionalReservations = Optional.empty();
 
@@ -143,5 +146,39 @@ public class CarController {
         carService.setExitTimeAndFee(parkingRecord, exitTime, fee);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(0, "요금이 정산되었습니다", fee));
+    }
+
+
+    @GetMapping("/cars")
+    public ResponseEntity<ApiResponse> getCars(
+            @RequestParam(required = true) String carId,
+            Authentication authentication) {
+
+//        차량의 주인인지 확인
+        Boolean isOwner = carService.checkMemberEmailAndCarId((String) authentication.getPrincipal(), carId);
+
+        if (!isOwner) {
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(1, "권한이 없습니다.", null));
+        }
+
+        Optional<ParkingRecord> optionalParkingRecord = carService.getParkingRecordAndNotExitByCarId(carId);
+
+        if (optionalParkingRecord.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(0, "차량 조회에 성공하였습니다.", null));
+        }
+
+        ParkingRecord parkingRecord = optionalParkingRecord.get();
+
+        String spaceName = carService.getSpaceNameBySpaceId(parkingRecord.getSpaceId());
+
+        CarGetCarsDto carGetCarsDto = new CarGetCarsDto(parkingRecord.getParkingRecordId(),
+                parkingRecord.getMemberId(),
+                parkingRecord.getSpaceId(),
+                parkingRecord.getCarId(),
+                parkingRecord.getEntryTime(),
+                spaceName);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(0, "차량 조회에 성공하였습니다.", carGetCarsDto));
+
     }
 }
