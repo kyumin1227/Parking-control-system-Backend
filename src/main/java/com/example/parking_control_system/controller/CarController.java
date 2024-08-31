@@ -169,14 +169,7 @@ public class CarController {
 
         ParkingRecord parkingRecord = optionalParkingRecord.get();
 
-        String spaceName = carService.getSpaceNameBySpaceId(parkingRecord.getSpaceId());
-
-        CarGetCarsDto carGetCarsDto = new CarGetCarsDto(parkingRecord.getParkingRecordId(),
-                parkingRecord.getMemberId(),
-                parkingRecord.getSpaceId(),
-                parkingRecord.getCarId(),
-                parkingRecord.getEntryTime(),
-                spaceName);
+        CarGetCarsDto carGetCarsDto = carService.makeCarsDto(parkingRecord);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(0, "차량 조회에 성공하였습니다.", carGetCarsDto));
 

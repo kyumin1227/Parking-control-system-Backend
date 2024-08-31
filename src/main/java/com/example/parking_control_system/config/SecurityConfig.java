@@ -32,6 +32,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/api/cars").hasAnyRole("USER", "ADMIN")
                                 .requestMatchers("/api/**").permitAll() // 공용 API는 인증 없이 접근 가능
                                 .anyRequest().authenticated() // 그 외의 모든 요청은 인증 필요

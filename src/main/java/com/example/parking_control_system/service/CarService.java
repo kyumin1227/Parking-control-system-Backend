@@ -1,5 +1,6 @@
 package com.example.parking_control_system.service;
 
+import com.example.parking_control_system.dto.CarGetCarsDto;
 import com.example.parking_control_system.entity.*;
 import com.example.parking_control_system.repository.CarRepository;
 import com.example.parking_control_system.repository.ParkingRecordRepository;
@@ -343,6 +344,21 @@ public class CarService {
 
         return false;
 
+    }
+
+
+    public CarGetCarsDto makeCarsDto(ParkingRecord parkingRecord) {
+
+        String spaceName = this.getSpaceNameBySpaceId(parkingRecord.getSpaceId());
+
+        CarGetCarsDto carGetCarsDto = new CarGetCarsDto(parkingRecord.getParkingRecordId(),
+                parkingRecord.getMemberId(),
+                parkingRecord.getSpaceId(),
+                parkingRecord.getCarId(),
+                parkingRecord.getEntryTime(),
+                spaceName);
+
+        return carGetCarsDto;
     }
 
 }
