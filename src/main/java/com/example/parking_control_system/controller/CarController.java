@@ -140,7 +140,7 @@ public class CarController {
 
         carService.setParkingSpaceStatusBySpaceId(spaceId, ParkingStatus.AVAILABLE);
 
-        carService.setExitTime(parkingRecord, exitTime);
+        carService.setExitTimeAndFee(parkingRecord, exitTime, fee);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(0, "요금이 정산되었습니다", fee));
     }

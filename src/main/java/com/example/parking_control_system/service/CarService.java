@@ -277,9 +277,10 @@ public class CarService {
     }
 
 
-    public void setExitTime(ParkingRecord parkingRecord, LocalDateTime exitTime) {
+    public void setExitTimeAndFee(ParkingRecord parkingRecord, LocalDateTime exitTime, long fee) {
 
         parkingRecord.setExitTime(exitTime);
+        parkingRecord.setParkingFee(fee);
 
         parkingRecordRepository.save(parkingRecord);
     }

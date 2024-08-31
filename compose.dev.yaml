@@ -17,7 +17,7 @@ services:
       retries: 5
 
   app:
-    image: "ghcr.io/parking-control-system/kyumin1227/parking-control-system-backend:1.0.0"
+    image: "ghcr.io/parking-control-system/kyumin1227/parking-control-system-backend:latest"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/pcs_dev
       SPRING_DATASOURCE_USERNAME: kyumin

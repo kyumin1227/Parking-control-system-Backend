@@ -19,5 +19,6 @@ public class ParkingRecord {
     private String carId;
     private LocalDateTime entryTime;
     private LocalDateTime exitTime;
+    private Long parkingFee;
 
 }
