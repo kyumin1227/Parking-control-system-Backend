@@ -15,5 +15,5 @@ public class Car {
     private String carId;
     @Enumerated(EnumType.STRING)
     private CarType carType;
-    private String memberId;
+    private Long memberId;
 }

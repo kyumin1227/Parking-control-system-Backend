@@ -27,12 +27,14 @@ public class CarService {
     private final ParkingSpaceRepository parkingSpaceRepository;
     private final ParkingRecordRepository parkingRecordRepository;
 
+    private final MemberService memberService;
+
     /**
      * 차량 번호를 통해 멤버 아이디 반환
      * @param carId
      * @return Optional <String>
      */
-    public Optional<String> getMemberIdByCarId(String carId) {
+    public Optional<Long> getMemberIdByCarId(String carId) {
 
         Optional<Car> optionalCar = carRepository.findById(carId);
 
@@ -42,7 +44,7 @@ public class CarService {
 
         Car car = optionalCar.get();
 
-        String memberId = car.getMemberId();
+        Long memberId = car.getMemberId();
 
         if (memberId == null) {
             return Optional.empty();
@@ -58,7 +60,7 @@ public class CarService {
      * @param time
      * @return
      */
-    public Optional<List<Reservation>> getReservationByMemberIdAndTime(String memberId, LocalDateTime time) {
+    public Optional<List<Reservation>> getReservationByMemberIdAndTime(Long memberId, LocalDateTime time) {
 
         Optional<List<Reservation>> optionalReservations = reservationRepository.findAllByMemberIdAndStartTimeBeforeAndEndTimeAfter(memberId, time, time);
 
@@ -154,7 +156,7 @@ public class CarService {
      * @param exitTime
      * @return
      */
-    public Boolean createCarRecordAndSave(String memberId, String spaceName, String carId, LocalDateTime entryTime, LocalDateTime exitTime) {
+    public Boolean createCarRecordAndSave(Long memberId, String spaceName, String carId, LocalDateTime entryTime, LocalDateTime exitTime) {
         ParkingRecord parkingRecord = new ParkingRecord();
 
         Optional<ParkingSpace> optionalParkingSpace = parkingSpaceRepository.findBySpaceName(spaceName);
@@ -307,5 +309,40 @@ public class CarService {
         carRepository.save(car);
     }
 
+    public String getSpaceNameBySpaceId(Integer spaceId) {
+        Optional<ParkingSpace> optionalParkingSpace = parkingSpaceRepository.findById(spaceId);
+
+        ParkingSpace parkingSpace = optionalParkingSpace.get();
+
+        return parkingSpace.getSpaceName();
+    }
+
+
+    /**
+     * 이메일과 차량 번호를 받아서 해당 유저가 차량의 주인인지 확인
+     * @param email
+     * @param carId
+     * @return
+     */
+    public Boolean checkMemberEmailAndCarId(String email, String carId) {
+
+        Member memberByEmail = memberService.getMemberByEmail(email);
+
+        Optional<Car> car = carRepository.findById(carId);
+
+        if (car.isEmpty()) {
+            return false;
+        }
+
+        Long memberIdByCar = car.get().getMemberId();
+        Long memberIdByEmail = memberByEmail.getMemberId();
+
+        if (memberIdByCar != null && memberIdByCar.equals(memberIdByEmail)) {
+            return true;
+        }
+
+        return false;
+
+    }
 
 }

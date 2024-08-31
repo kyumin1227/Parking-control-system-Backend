@@ -14,7 +14,7 @@ public class ParkingRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long parkingRecordId;
-    private String memberId;
+    private Long memberId;
     private Integer spaceId;
     private String carId;
     private LocalDateTime entryTime;

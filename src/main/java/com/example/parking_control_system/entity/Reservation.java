@@ -13,7 +13,7 @@ public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long reservationId;
-    private String memberId;
+    private Long memberId;
     private Integer spaceId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;

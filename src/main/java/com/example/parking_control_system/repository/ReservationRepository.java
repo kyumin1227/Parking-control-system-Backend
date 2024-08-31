@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    Optional<List<Reservation>> findAllByMemberIdAndStartTimeBeforeAndEndTimeAfter(String memberId, LocalDateTime startTime, LocalDateTime endTime);
+    Optional<List<Reservation>> findAllByMemberIdAndStartTimeBeforeAndEndTimeAfter(Long memberId, LocalDateTime startTime, LocalDateTime endTime);
 }
