@@ -11,6 +11,8 @@ import com.example.parking_control_system.type.ParkingStatus;
 import com.example.parking_control_system.type.ReservationStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cglib.core.Local;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -360,5 +363,23 @@ public class CarService {
 
         return carGetCarsDto;
     }
+
+    public Page<ParkingRecord> getParkingRecordByCarIds(List<String> carIds, Pageable pageable, LocalDateTime entryStartDate, LocalDateTime entryEndDate, LocalDateTime exitStartDate, LocalDateTime exitEndDate) {
+
+        Page<ParkingRecord> allByCarIds = parkingRecordRepository.getParkingRecordsByCustomQuery(pageable, carIds, entryStartDate, entryEndDate, exitStartDate, exitEndDate);
+
+        return allByCarIds;
+    }
+
+    public List<String> getCarIdsByMemberId(Long memberId) {
+
+        List<Car> allByMemberId = carRepository.getAllByMemberId(memberId);
+
+        List<String> carIds = allByMemberId.stream().map(car -> car.getCarId()).collect(Collectors.toList());
+
+        return carIds;
+    }
+
+
 
 }

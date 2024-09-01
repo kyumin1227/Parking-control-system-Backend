@@ -14,7 +14,13 @@ import com.example.parking_control_system.service.MemberService;
 import com.example.parking_control_system.type.CarType;
 import com.example.parking_control_system.type.ParkingStatus;
 import com.example.parking_control_system.type.ReservationStatus;
+import jakarta.persistence.PreUpdate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -151,7 +157,7 @@ public class CarController {
 
     @GetMapping("/cars")
     public ResponseEntity<ApiResponse> getCars(
-            @RequestParam(required = true) String carId,
+            @RequestParam String carId,
             Authentication authentication) {
 
 //        차량의 주인인지 확인
@@ -172,6 +178,60 @@ public class CarController {
         CarGetCarsDto carGetCarsDto = carService.makeCarsDto(parkingRecord);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(0, "차량 조회에 성공하였습니다.", carGetCarsDto));
+
+    }
+
+    /**
+     * 차량 번호로 차량의 주차 기록 조회
+     * 유저용이기에 자신의 차량만 조회 가능
+     * @param carIds    리스트이지만 하나만 받음
+     * @param page
+     * @param size
+     * @param sort  , 로 구분된 문자열로 앞에는 정렬 기준 뒤에는 asc 또는 desc 가 온다.
+     * @param entryStartDate
+     * @param entryEndDate
+     * @param exitStartDate
+     * @param exitEndDate
+     * @param authentication
+     * @return
+     */
+    @GetMapping("/cars/records")
+    public ResponseEntity<ApiResponse> getRecords(
+            @RequestParam(defaultValue = "defaultCarID") List<String> carIds,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(defaultValue = "parkingRecordId,asc") List<String> sort,
+            @RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now().minusDays(30)}")
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime entryStartDate, // 기본값으로 현재 시간에서 30일 전 설정
+            @RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now()}")
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime entryEndDate, // 기본값으로 현재 시간 설정
+            @RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now().minusDays(30)}")
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime exitStartDate, // 기본값으로 현재 시간에서 30일 전 설정
+            @RequestParam(defaultValue = "#{T(java.time.LocalDateTime).now()}")
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime exitEndDate, // 기본값으로 현재 시간 설정
+            Authentication authentication
+    ) {
+
+//        차량의 주인인지 확인
+        Boolean isOwner = carService.checkMemberEmailAndCarId((String) authentication.getPrincipal(), carIds.get(0));
+
+        if (!isOwner) {
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(1, "권한이 없습니다.", null));
+        }
+
+        Sort.Direction direction = Sort.Direction.fromString(sort.get(1));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort.get(0)));
+
+//        만약 carIds 에 두개 이상의 값이 들어오면 하나로 변경
+        if (carIds.size() != 1) {
+            String carId = carIds.get(0);
+            carIds.clear();
+            carIds.add(carId);
+        }
+
+        Page<ParkingRecord> parkingRecordByCarId = carService.getParkingRecordByCarIds(carIds, pageable, entryStartDate, entryEndDate, exitStartDate, exitEndDate);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse(0, "조회 되었습니다.", parkingRecordByCarId));
 
     }
 }
