@@ -364,6 +364,16 @@ public class CarService {
         return carGetCarsDto;
     }
 
+    /**
+     * 차량의 아이디들을 통해서 주차 기록을 반환
+     * @param carIds
+     * @param pageable
+     * @param entryStartDate
+     * @param entryEndDate
+     * @param exitStartDate
+     * @param exitEndDate
+     * @return
+     */
     public Page<ParkingRecord> getParkingRecordByCarIds(List<String> carIds, Pageable pageable, LocalDateTime entryStartDate, LocalDateTime entryEndDate, LocalDateTime exitStartDate, LocalDateTime exitEndDate) {
 
         Page<ParkingRecord> allByCarIds = parkingRecordRepository.getParkingRecordsByCustomQuery(pageable, carIds, entryStartDate, entryEndDate, exitStartDate, exitEndDate);
@@ -371,6 +381,11 @@ public class CarService {
         return allByCarIds;
     }
 
+    /**
+     * 멤버의 아이디를 받아서 멤버의 차량 아이디를 반환
+     * @param memberId
+     * @return
+     */
     public List<String> getCarIdsByMemberId(Long memberId) {
 
         List<Car> allByMemberId = carRepository.getAllByMemberId(memberId);
@@ -378,6 +393,21 @@ public class CarService {
         List<String> carIds = allByMemberId.stream().map(car -> car.getCarId()).collect(Collectors.toList());
 
         return carIds;
+    }
+
+
+    /**
+     * 주차 공간의 이름을 통해 주차 공간의 아이디를 가져오는 서비스
+     * @param spaceName
+     * @return
+     */
+    public Integer getSpaceIdBySpaceName(String spaceName) {
+
+        Optional<ParkingSpace> bySpaceName = parkingSpaceRepository.findBySpaceName(spaceName);
+
+        Integer spaceId = bySpaceName.get().getSpaceId();
+
+        return spaceId;
     }
 
 

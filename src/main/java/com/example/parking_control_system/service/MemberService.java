@@ -118,4 +118,15 @@ public class MemberService {
     }
 
 
+    public Boolean checkMemberExistByMemberId(Long memberId) {
+
+        boolean existsById = memberRepository.existsById(memberId);
+
+        if (existsById) {
+            return true;
+        }
+        return false;
+    }
+
+
 }

@@ -48,6 +48,7 @@ public class CarController {
      * @param carEntryRequestDto (차량 번호, 입차 시간)
      */
     @PostMapping("/entry")
+//    TODO 예약 후 차량을 입차 시 예약한 자리로 지정되지 않는 문제 발생
     public ResponseEntity<ApiResponse> entity(@RequestBody CarEntryRequestDto carEntryRequestDto) {
 
         String carId = carEntryRequestDto.getCarId();
